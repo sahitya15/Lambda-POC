@@ -4,13 +4,18 @@ phases:
   install:
     runtime-versions:
       nodejs: 14
+    commands:
+      - npm install
   build:
     commands:
-      - cd LambdaDev
-      - npm install
+      - npm run build
       - zip -r LambdaDev.zip *
-      - aws lambda update-function-code --function-name LambdaDev --zip-file fileb://LambdaDev.zip
-      - cd ../lambdaSF
-      - npm install
       - zip -r lambdaSF.zip *
-      - aws lambda update-function-code --function-name lambdaSF --zip-file fileb://lambdaSF.zip
+  post_build:
+    commands:
+      - aws s3 cp LambdaDev.zip s3://my-bucket/function1.zip
+      - aws s3 cp lambdaSF.zip s3://my-bucket/function2.zip
+artifacts:
+  files:
+    - LambdaDev.zip
+    - lambdaSF.zip
