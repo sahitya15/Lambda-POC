@@ -1,0 +1,24 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+  build:
+    commands:
+      - cd function1
+      - npm install
+      - zip -r function1.zip *
+      - aws lambda update-function-code --function-name my-function-1 --zip-file fileb://function1.zip
+      - cd ../function2
+      - npm install
+      - zip -r function2.zip *
+      - aws lambda update-function-code --function-name my-function-2 --zip-file fileb://function2.zip
+      - cd ../function3
+      - npm install
+      - zip -r function3.zip *
+      - aws lambda update-function-code --function-name my-function-3 --zip-file fileb://function3.zip
+      - cd ../function4
+      - npm install
+      - zip -r function4.zip *
+      - aws lambda update-function-code --function-name my-function-4 --zip-file fileb://function4.zip
