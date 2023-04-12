@@ -7,7 +7,7 @@ Resources:
         S3Key: lambda1.zip
       FunctionName: LambdaDev
       Handler: index.handler
-      Role: arn:aws:iam::175187218018:role/service-role/LambdaDev-role-29zgssiu
+      Role: arn:aws:iam::175187218018:role/service-role/LambdaDev-role-oqgm9nvc
       Runtime: nodejs14.x
   LambdaFunction2:
     Type: AWS::Lambda::Function
@@ -17,5 +17,5 @@ Resources:
         S3Key: lambda2.zip
       FunctionName: lambdaSF
       Handler: index.handler
-      Role: arn:aws:iam::175187218018:role/service-role/lambdaSF-role-ikil6rot
+      Role: arn:aws:iam::175187218018:role/service-role/lambdaSF-role-o9ywzxvq
       Runtime: nodejs14.x
