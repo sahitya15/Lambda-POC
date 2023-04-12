@@ -12,7 +12,8 @@ phases:
       
   build:
     commands:
-      - aws cloudformation package --template-file template.yaml --s3-bucket multi-lambda --output-template-file output.yaml
+      - aws cloudformation package --template-file template.yaml --s3-bucket multi-lambda --s3-prefix cicd/lambda-functions --output-template-file output.yaml
+
 artifacts:
   files:
     - output.yaml
