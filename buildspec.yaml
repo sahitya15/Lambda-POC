@@ -3,19 +3,16 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-      nodejs: 14
+      nodejs: 12
+  pre_build:
     commands:
-      - npm install
+      - cd lambda1 && npm install
+      - cd lambda2 && npm install
+      - cd lambda3 && npm install
+      - cd lambda4 && npm install
   build:
     commands:
-      - npm run build
-      - zip -r LambdaDev.zip *
-      - zip -r lambdaSF.zip *
-  post_build:
-    commands:
-      - aws s3 cp LambdaDev.zip s3://my-bucket/function1.zip
-      - aws s3 cp lambdaSF.zip s3://my-bucket/function2.zip
+      - aws cloudformation package --template-file template.yaml --s3-bucket my-bucket --output-template-file output.yaml
 artifacts:
   files:
-    - LambdaDev.zip
-    - lambdaSF.zip
+    - output.yaml
