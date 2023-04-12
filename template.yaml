@@ -1,0 +1,41 @@
+Resources:
+  LambdaFunction1:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: my-bucket
+        S3Key: lambda1.zip
+      FunctionName: MyLambdaFunction1
+      Handler: index.handler
+      Role: arn:aws:iam::123456789012:role/MyLambdaExecutionRole
+      Runtime: nodejs12.x
+  LambdaFunction2:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: my-bucket
+        S3Key: lambda2.zip
+      FunctionName: MyLambdaFunction2
+      Handler: index.handler
+      Role: arn:aws:iam::123456789012:role/MyLambdaExecutionRole
+      Runtime: nodejs12.x
+  LambdaFunction3:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: my-bucket
+        S3Key: lambda3.zip
+      FunctionName: MyLambdaFunction3
+      Handler: index.handler
+      Role: arn:aws:iam::123456789012:role/MyLambdaExecutionRole
+      Runtime: nodejs12.x
+  LambdaFunction4:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: my-bucket
+        S3Key: lambda4.zip
+      FunctionName: MyLambdaFunction4
+      Handler: index.handler
+      Role: arn:aws:iam::123456789012:role/MyLambdaExecutionRole
+      Runtime: nodejs12.x
