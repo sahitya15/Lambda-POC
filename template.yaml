@@ -3,39 +3,19 @@ Resources:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: my-bucket
+        S3Bucket: multi-lambda
         S3Key: lambda1.zip
-      FunctionName: MyLambdaFunction1
+      FunctionName: LambdaDev
       Handler: index.handler
-      Role: arn:aws:iam::123456789012:role/MyLambdaExecutionRole
-      Runtime: nodejs12.x
+      Role: arn:aws:iam::175187218018:role/service-role/LambdaDev-role-29zgssiu
+      Runtime: nodejs14.x
   LambdaFunction2:
     Type: AWS::Lambda::Function
     Properties:
       Code:
-        S3Bucket: my-bucket
+        S3Bucket: multi-lambda
         S3Key: lambda2.zip
-      FunctionName: MyLambdaFunction2
+      FunctionName: lambdaSF
       Handler: index.handler
-      Role: arn:aws:iam::123456789012:role/MyLambdaExecutionRole
-      Runtime: nodejs12.x
-  LambdaFunction3:
-    Type: AWS::Lambda::Function
-    Properties:
-      Code:
-        S3Bucket: my-bucket
-        S3Key: lambda3.zip
-      FunctionName: MyLambdaFunction3
-      Handler: index.handler
-      Role: arn:aws:iam::123456789012:role/MyLambdaExecutionRole
-      Runtime: nodejs12.x
-  LambdaFunction4:
-    Type: AWS::Lambda::Function
-    Properties:
-      Code:
-        S3Bucket: my-bucket
-        S3Key: lambda4.zip
-      FunctionName: MyLambdaFunction4
-      Handler: index.handler
-      Role: arn:aws:iam::123456789012:role/MyLambdaExecutionRole
-      Runtime: nodejs12.x
+      Role: arn:aws:iam::175187218018:role/service-role/lambdaSF-role-ikil6rot
+      Runtime: nodejs14.x
