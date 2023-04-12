@@ -7,7 +7,7 @@ phases:
   pre_build:
     commands:
       - cd LambdaDev && npm install
-      - cd lambdaSF/lambdaSF && npm install
+      - cd lambdaSF/lambdaSF && npm install -x
       
   build:
     commands:
