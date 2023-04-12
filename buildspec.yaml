@@ -1,0 +1,17 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 14
+  pre_build:
+    commands:
+      - cd LambdaDev && npm install
+      - cd lambdaSF/lambdaSF && npm install -x
+      
+  build:
+    commands:
+      - aws cloudformation package --template-file template.yaml --s3-bucket multi-lambda --output-template-file output.yaml
+artifacts:
+  files:
+    - output.yaml
