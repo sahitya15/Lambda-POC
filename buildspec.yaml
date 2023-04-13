@@ -6,7 +6,7 @@ phases:
       nodejs: 14
   build:
     commands:
-      - if [ "$CODEBUILD_WEBHOOK_TRIGGER" != "branch/main" ]; then
+      - if [[ "$CODEBUILD_WEBHOOK_TRIGGER" != "branch/main" ]]; then
           echo "Skipping deployment for branch $CODEBUILD_WEBHOOK_TRIGGER";
           exit 0;
         fi
