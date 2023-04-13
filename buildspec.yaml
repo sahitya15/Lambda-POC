@@ -10,14 +10,14 @@ phases:
           echo "Skipping deployment for branch $CODEBUILD_WEBHOOK_TRIGGER";
           exit 0;
         fi
-      - if [ "$CODEBUILD_SOURCE_VERSION" == *"LambdaDev"* ]; then
+      - if [[ "$CODEBUILD_SOURCE_VERSION" == *"LambdaDev"* ]]; then
           cd LambdaDev;
           npm install;
           zip -r LambdaDev.zip *;
           aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip;
           aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip;
         fi
-      - if [ "$CODEBUILD_SOURCE_VERSION" == *"lambdaSF"* ]; then
+      - if [[ "$CODEBUILD_SOURCE_VERSION" == *"lambdaSF"* ]]; then
           cd lambdaSF;
           npm install;
           zip -r lambdaSF.zip *;
