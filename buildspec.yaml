@@ -1,37 +1,38 @@
+---
 version: 0.2
-
 phases:
   install:
-    runtime-versions:
-      nodejs: 14
-  pre_build:
     commands:
-      # Install dependencies
-      npm install
-      
-      # Check if changes were made to any of the code files
-      CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | grep -E '(LambdaDev|lambdaSF)\.js')
-      
-      # If changes were made, build and push the deployment packages to S3
-      if [ -n "$CHANGED_FILES" ]; then
-        echo "Changes detected in: $CHANGED_FILES"
-        npm run build
-        for LAMBDA in LambdaDev lambdaSF; do
-          if [ -n "$(echo $CHANGED_FILES | grep ${LAMBDA}.js)" ]; then
-            aws s3 cp ${LAMBDA}.zip s3://multi-lambda/${LAMBDA}.zip
-          fi
-        done
-      else
-        echo "No changes detected. Skipping build and push."
-      fi
-      
+      - npm install
+  build:
+    commands:
+      - CHANGED_FILES=$(git diff --name-only HEAD^ HEAD | grep -E
+        "(LambdaDev|lambdaSF)\.js")
+      - >-
+        if [ -n "$CHANGED_FILES" ]; then
+          echo "Changes detected in: $CHANGED_FILES"
+          npm run build
+          for LAMBDA in LambdaDev lambdaSF; do
+            if [ -n "$(echo $CHANGED_FILES | grep ${LAMBDA}.js)" ]; then
+              if aws s3 ls s3://multi-lambda/${LAMBDA}.zip; then
+                aws s3 cp ${LAMBDA}.zip s3://multi-lambda/${LAMBDA}.zip
+                echo "Deployment package for ${LAMBDA} updated in S3."
+              else
+                echo "No deployment package found for ${LAMBDA} in S3. Skipping update."
+              fi
+            fi
+          done
+        else
+          echo "No changes detected. Skipping build and push."
+        fi
+
   post_build:
-    commands:
-      # Update Lambda functions with the latest deployment packages
+  commands:
+    - |
       for LAMBDA in LambdaDev lambdaSF; do
-        # Check if the deployment package for this Lambda function exists in S3
         if aws s3 ls s3://multi-lambda/${LAMBDA}.zip; then
-          aws lambda update-function-code --function-name my-${LAMBDA}-function --s3-bucket multi-lambda --s3-key ${LAMBDA}.zip
+          aws lambda update-function-code --function-name ${LAMBDA} --s3-bucket multi-lambda --s3-key ${LAMBDA}.zip
+          echo "${LAMBDA} updated with latest deployment package."
         else
           echo "No deployment package found for ${LAMBDA}. Skipping update."
         fi
