@@ -1,37 +1,18 @@
-version: 0.2
+---
+version: 0.3
 phases:
   install:
-    commands:
-      - npm install
+    runtime-versions:
+      nodejs: 14
   build:
     commands:
-      - CHANGED_FILES=$(git diff --name-only --diff-filter=d $CODEBUILD_SOURCE_VERSION HEAD | grep -E "(LambdaDev|lambdaSF)/")
-      
-      - >-
-        if [ -n "$CHANGED_FILES" ]; then
-          echo "Changes detected in: $CHANGED_FILES"
-          npm run build
-          for LAMBDA in LambdaDev lambdaSF; do
-            if [ -n "$(echo $CHANGED_FILES | grep ${LAMBDA})" ]; then
-              if aws s3 ls s3://multi-lambda/${LAMBDA}.zip; then
-                aws s3 cp ${LAMBDA}.zip s3://multi-lambda/${LAMBDA}.zip
-                echo "Deployment package for ${LAMBDA} updated in S3."
-              else
-                echo "No deployment package found for ${LAMBDA} in S3. Skipping update."
-              fi
-            fi
-          done
-        else
-          echo "No changes detected. Skipping build and push."
+      - if git diff --name-only HEAD~1 | grep -q 'LambdaDev/'; then cd
+        LambdaDev; npm install; zip -r LambdaDev.zip *; aws s3 cp LambdaDev.zip
+        s3://multi-lambda/LambdaDev.zip; aws lambda update-function-code
+        --function-name LambdaDev --s3-bucket multi-lambda --s3-key
+        LambdaDev.zip; fi
+      - if git diff --name-only HEAD~1 | grep -q 'lambdaSF/'; then cd lambdaSF;
+        npm install; zip -r lambdaSF.zip *; aws s3 cp lambdaSF.zip
+        s3://multi-lambda/lambdaSF.zip; aws lambda update-function-code
+        --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip;
         fi
-  post_build:
-    commands:
-      - |
-        for LAMBDA in LambdaDev lambdaSF; do
-          if aws s3 ls s3://multi-lambda/${LAMBDA}.zip; then
-            aws lambda update-function-code --function-name ${LAMBDA} --s3-bucket multi-lambda --s3-key ${LAMBDA}.zip
-            echo "${LAMBDA} updated with latest deployment package."
-          else
-            echo "No deployment package found for ${LAMBDA}. Skipping update."
-          fi
-        done
