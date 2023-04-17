@@ -25,15 +25,14 @@ phases:
         else
           echo "No changes detected. Skipping build and push."
         fi
-
   post_build:
-  commands:
-    - |
-      for LAMBDA in LambdaDev lambdaSF; do
-        if aws s3 ls s3://multi-lambda/${LAMBDA}.zip; then
-          aws lambda update-function-code --function-name ${LAMBDA} --s3-bucket multi-lambda --s3-key ${LAMBDA}.zip
-          echo "${LAMBDA} updated with latest deployment package."
-        else
-          echo "No deployment package found for ${LAMBDA}. Skipping update."
-        fi
-      done
+    commands:
+      - |
+        for LAMBDA in LambdaDev lambdaSF; do
+          if aws s3 ls s3://multi-lambda/${LAMBDA}.zip; then
+            aws lambda update-function-code --function-name ${LAMBDA} --s3-bucket multi-lambda --s3-key ${LAMBDA}.zip
+            echo "${LAMBDA} updated with latest deployment package."
+          else
+            echo "No deployment package found for ${LAMBDA}. Skipping update."
+          fi
+        done
