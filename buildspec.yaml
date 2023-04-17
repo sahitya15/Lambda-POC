@@ -12,13 +12,11 @@ phases:
           echo "Changes detected in: $CHANGED_FILES"
           npm run build
           for LAMBDA in LambdaDev lambdaSF; do
-            if [ -n "$(echo $CHANGED_FILES | grep ${LAMBDA}.js)" ]; then
-              if aws s3 ls s3://multi-lambda/${LAMBDA}.zip; then
-                aws s3 cp ${LAMBDA}.zip s3://multi-lambda/${LAMBDA}.zip
-                echo "Deployment package for ${LAMBDA} updated in S3."
-              else
-                echo "No deployment package found for ${LAMBDA} in S3. Skipping update."
-              fi
+            if [ -n "$(echo $CHANGED_FILES | grep ${LAMBDA}/)" ]; then
+              aws s3 cp ${LAMBDA}.zip s3://multi-lambda/${LAMBDA}.zip
+              echo "Deployment package for ${LAMBDA} updated in S3."
+            else
+              echo "No changes detected for ${LAMBDA}. Skipping update."
             fi
           done
         else
