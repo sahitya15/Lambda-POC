@@ -8,8 +8,7 @@ exports.handler = async (event, context) => {
       const encryptedData = event.awslogs.data !== undefined ? event.awslogs.data : '';
       console.log(event.awslogs);
       console.log('encryptedData', encryptedData);
-      // test CI/CD
-      console.log('test CI CD Updates');
+      
       // Set the region and credentials for the AWS SDK
       AWS.config.update({region: 'us-east-1a'});
       AWS.config.credentials = {
