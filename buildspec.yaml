@@ -1,4 +1,3 @@
-version: 0.2
 phases:
   install:
     runtime-versions:
@@ -13,10 +12,10 @@ phases:
         for func in "${functions[@]}"
         do
           if [ $CODEBUILD_SOURCE_VERSION == *"$func"* ]; then
-            cd $func;
-            npm install;
-            zip -r $func.zip *;
-            aws s3 cp $func.zip s3://$S3_BUCKET/$func.zip;
-            aws lambda update-function-code --function-name $func --s3-bucket $S3_BUCKET --s3-key $func.zip;
+            cd $func
+            npm install
+            zip -r $func.zip *
+            aws s3 cp $func.zip s3://$S3_BUCKET/$func.zip
+            aws lambda update-function-code --function-name $func --s3-bucket $S3_BUCKET --s3-key $func.zip
           fi
         done
