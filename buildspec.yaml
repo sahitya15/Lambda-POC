@@ -9,9 +9,8 @@ phases:
           echo "Skipping deployment for branch $CODEBUILD_WEBHOOK_TRIGGER";
           exit 0;
         fi
-      - functions=("LambdaDev" "lambdaSF")
-        for func in "${functions[@]}"; do
-          if [ $CODEBUILD_SOURCE_VERSION == *"$func"* ]; then
+      - for func in LambdaDev lambdaSF; do
+          if [[ $CODEBUILD_SOURCE_VERSION == *"$func"* ]]; then
             cd $func;
             npm install;
             zip -r $func.zip *;
@@ -19,3 +18,4 @@ phases:
             aws lambda update-function-code --function-name $func --s3-bucket $S3_BUCKET --s3-key $func.zip;
           fi
         done
+
