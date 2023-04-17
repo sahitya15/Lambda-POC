@@ -1,18 +1,21 @@
-version: 0.2
-
 phases:
   install:
     runtime-versions:
       nodejs: 14
   build:
     commands:
-      - cd LambdaDev
-      - npm install
-      - zip -r LambdaDev.zip *
-      - aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip
-      - aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip
-      - cd ../lambdaSF
-      - npm install
-      - zip -r lambdaSF.zip *
-      - aws s3 cp lambdaSF.zip s3://multi-lambda/lambdaSF.zip
-      - aws lambda update-function-code --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip
+      - if [ "$CODEBUILD_WEBHOOK_TRIGGER" != "branch/main" ]; then
+          echo "Skipping deployment for branch $CODEBUILD_WEBHOOK_TRIGGER";
+          exit 0;
+        fi
+      - functions=("LambdaDev" "lambdaSF")
+        for func in "${functions[@]}"
+        do
+          if [ $CODEBUILD_SOURCE_VERSION == *"$func"* ]; then
+            cd $func;
+            npm install;
+            zip -r $func.zip *;
+            aws s3 cp $func.zip s3://$S3_BUCKET/$func.zip;
+            aws lambda update-function-code --function-name $func --s3-bucket $S3_BUCKET --s3-key $func.zip;
+          fi
+        done
