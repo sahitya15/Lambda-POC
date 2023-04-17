@@ -7,21 +7,24 @@ phases:
   build:
     commands:
       - echo "CODEBUILD_WEBHOOK_TRIGGER is: $CODEBUILD_WEBHOOK_TRIGGER"
-      - if [ "$CODEBUILD_WEBHOOK_TRIGGER" != "refs/heads/main" ]; then
-          echo "Skipping deployment for branch $CODEBUILD_WEBHOOK_TRIGGER";
-          exit 0;
+      - |
+        if [ "$CODEBUILD_WEBHOOK_TRIGGER" != "refs/heads/main" ]; then
+          echo "Skipping deployment for branch $CODEBUILD_WEBHOOK_TRIGGER"
+          exit 0
         fi
-      - if [[ "$CODEBUILD_SOURCE_VERSION" == *"LambdaDev"* ]]; then
-          cd LambdaDev;
-          npm install;
-          zip -r LambdaDev.zip *;
-          aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip;
-          aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip;
+      - |
+        if [[ "$CODEBUILD_SOURCE_VERSION" == *"LambdaDev"* ]]; then
+          cd LambdaDev
+          npm install
+          zip -r LambdaDev.zip *
+          aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip
+          aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip
         fi
-      - if [[ "$CODEBUILD_SOURCE_VERSION" == *"lambdaSF"* ]]; then
-          cd lambdaSF;
-          npm install;
-          zip -r lambdaSF.zip *;
-          aws s3 cp lambdaSF.zip s3://multi-lambda/lambdaSF.zip;
-          aws lambda update-function-code --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip;
+      - |
+        if [[ "$CODEBUILD_SOURCE_VERSION" == *"lambdaSF"* ]]; then
+          cd lambdaSF
+          npm install
+          zip -r lambdaSF.zip *
+          aws s3 cp lambdaSF.zip s3://multi-lambda/lambdaSF.zip
+          aws lambda update-function-code --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip
         fi
