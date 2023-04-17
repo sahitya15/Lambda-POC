@@ -18,6 +18,7 @@ exports.handler = async (event, context) => {
     
       // The encrypted message and the ID of the KMS key used for encryption
       const encryptedMessage = encryptedData; // The encrypted message in base64 format
+      console.log('encryptedMessage', encryptedMessage);
       const kmsKeyId = '4b86b61e-8815-446a-bdea-b64a8a0f7676'; // The ID of the KMS key used for encryption
     
       // Create an instance of the KMS client
