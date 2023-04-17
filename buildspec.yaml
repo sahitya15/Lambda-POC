@@ -5,7 +5,7 @@ phases:
       - npm install
   build:
     commands:
-      - CHANGED_DIRS=$(git diff --name-only --diff-filter=d $CODEBUILD_SOURCE_VERSION HEAD | grep -E "(LambdaDev|lambdaSF)/")
+      - CHANGED_FILES=$(git diff --name-only --diff-filter=d $CODEBUILD_SOURCE_VERSION HEAD | grep -E "(LambdaDev|lambdaSF)/")
       
       - >-
         if [ -n "$CHANGED_FILES" ]; then
