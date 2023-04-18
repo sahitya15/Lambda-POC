@@ -6,6 +6,7 @@ phases:
       nodejs: 14
   build:
     commands:
+      - ls -al
       - |
         # Check if there are changes in the LambdaDev directory
         if git diff --name-only HEAD^ HEAD | grep -q "^LambdaDev/"; then
