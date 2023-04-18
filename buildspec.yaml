@@ -6,23 +6,23 @@ phases:
       nodejs: 14
   build:
     commands:
-      - cd LambdaDev
-      - npm install
-      - cd ../lambdaSF
-      - npm install
-      - |
-        if [ "$CODEBUILD_WEBHOOK_EVENT" == "PUSH" ]; then
-          changed_files=$(git diff --name-only HEAD HEAD~1)
-          lambda_folder=$(echo $changed_files | grep -E '^LambdaDev/|^lambdaSF/' | cut -d'/' -f1)
-          if [ "$lambda_folder" == "LambdaDev" ]; then
-            cd LambdaDev
-            zip -r LambdaDev.zip *
-            aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip
-            aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip
-          elif [ "$lambda_folder" == "lambdaSF" ]; then
-            cd lambdaSF
-            zip -r lambdaSF.zip *
-            aws s3 cp lambdaSF.zip s3://multi-lambda/lambdaSF.zip
-            aws lambda update-function-code --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip
-          fi
-        fi
+      - git diff HEAD^ HEAD --name-only | while read -r line ; do
+      -   folder=$(echo $line | cut -d'/' -f1)
+      -   if [ "$folder" = "LambdaDev" ]; then
+      -     echo "Detected a change in LambdaDev folder, updating the corresponding lambda function..."
+      -     cd $folder
+      -     npm install
+      -     zip -r ../$folder.zip *
+      -     aws s3 cp ../$folder.zip s3://multi-lambda/$folder.zip
+      -     aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip
+      -     break
+      -   elif [ "$folder" = "lambdaSF" ]; then
+      -     echo "Detected a change in lambdaSF folder, updating the corresponding lambda function..."
+      -     cd $folder
+      -     npm install
+      -     zip -r ../$folder.zip *
+      -     aws s3 cp ../$folder.zip s3://multi-lambda/$folder.zip
+      -     aws lambda update-function-code --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip
+      -     break
+      -   fi
+      - done
