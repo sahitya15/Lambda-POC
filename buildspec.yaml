@@ -4,32 +4,21 @@ phases:
   install:
     runtime-versions:
       nodejs: 14
-
   build:
     commands:
       - |
-        if [ "$CODEBUILD_WEBHOOK_TRIGGER" = "PUSH" ]; then
-          COMMIT=$(git log -1 --format=%h)
-
-          UPDATED_FILES=$(git diff-tree --name-only --no-commit-id $COMMIT | grep -oP 'LambdaDev/.*')
-
-          if [ -n "$UPDATED_FILES" ]; then
-            cd LambdaDev
-            npm install
-            zip -r LambdaDev.zip *
-            aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip
-            aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip
-          fi
-
-          UPDATED_FILES=$(git diff-tree --name-only --no-commit-id $COMMIT | grep -oP 'lambdaSF/.*')
-
-          if [ -n "$UPDATED_FILES" ]; then
-            cd lambdaSF
-            npm install
-            zip -r lambdaSF.zip *
-            aws s3 cp lambdaSF.zip s3://multi-lambda/lambdaSF.zip
-            aws lambda update-function-code --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip
-          fi
+        if [[ "$AWS_CODEBUILD_WEBHOOK_HEAD_REF" == "refs/heads/main" && $(git diff-tree --no-commit-id --name-only -r HEAD) =~ "LambdaDev/" ]]; then
+          cd LambdaDev
+          npm install
+          zip -r LambdaDev.zip *
+          aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip
+          aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip
+        elif [[ "$AWS_CODEBUILD_WEBHOOK_HEAD_REF" == "refs/heads/main" && $(git diff-tree --no-commit-id --name-only -r HEAD) =~ "lambdaSF/" ]]; then
+          cd lambdaSF
+          npm install
+          zip -r lambdaSF.zip *
+          aws s3 cp lambdaSF.zip s3://multi-lambda/lambdaSF.zip
+          aws lambda update-function-code --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip
         else
-          echo "Build was not triggered by a Git push"
+          echo "No Lambda function to update"
         fi
