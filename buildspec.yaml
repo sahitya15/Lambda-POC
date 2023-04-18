@@ -4,31 +4,32 @@ phases:
   install:
     runtime-versions:
       nodejs: 14
+
   build:
     commands:
-      # Get the Git commit that triggered the build
-      - COMMIT=$(git log -1 --format=%h)
+      - |
+        if [ "$CODEBUILD_WEBHOOK_TRIGGER" = "PUSH" ]; then
+          COMMIT=$(git log -1 --format=%h)
 
-      # Check if any file in the LambdaDev folder was updated in the commit
-      - UPDATED_FILES=$(git diff-tree --name-only --no-commit-id $COMMIT | grep -oP 'LambdaDev/.*')
+          UPDATED_FILES=$(git diff-tree --name-only --no-commit-id $COMMIT | grep -oP 'LambdaDev/.*')
 
-      # Update the LambdaDev function code if any file in the folder was updated
-      - if [ -n "$UPDATED_FILES" ]; then
-          cd LambdaDev
-          npm install
-          zip -r LambdaDev.zip *
-          aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip
-          aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip
-        fi
+          if [ -n "$UPDATED_FILES" ]; then
+            cd LambdaDev
+            npm install
+            zip -r LambdaDev.zip *
+            aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip
+            aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip
+          fi
 
-      # Check if any file in the lambdaSF folder was updated in the commit
-      - UPDATED_FILES=$(git diff-tree --name-only --no-commit-id $COMMIT | grep -oP 'lambdaSF/.*')
+          UPDATED_FILES=$(git diff-tree --name-only --no-commit-id $COMMIT | grep -oP 'lambdaSF/.*')
 
-      # Update the lambdaSF function code if any file in the folder was updated
-      - if [ -n "$UPDATED_FILES" ]; then
-          cd lambdaSF
-          npm install
-          zip -r lambdaSF.zip *
-          aws s3 cp lambdaSF.zip s3://multi-lambda/lambdaSF.zip
-          aws lambda update-function-code --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip
+          if [ -n "$UPDATED_FILES" ]; then
+            cd lambdaSF
+            npm install
+            zip -r lambdaSF.zip *
+            aws s3 cp lambdaSF.zip s3://multi-lambda/lambdaSF.zip
+            aws lambda update-function-code --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip
+          fi
+        else
+          echo "Build was not triggered by a Git push"
         fi
