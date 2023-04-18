@@ -4,11 +4,14 @@ phases:
   install:
     runtime-versions:
       nodejs: 14
+  pre_build:
+    commands:
+      - git fetch --all
   build:
     commands:
-      - git fetch origin main
-      - git diff --name-only $CODEBUILD_SOURCE_VERSION $(git merge-base $CODEBUILD_SOURCE_VERSION origin/main) | while read -r line; do
-          if [[ "$line" == "lambdaDev/"* ]]; then
+      - |
+        for file in $(git diff --name-only $CODEBUILD_SOURCE_VERSION $(git merge-base $CODEBUILD_SOURCE_VERSION origin/main)); do
+          if [[ "$file" == "lambdaDev/"* ]]; then
             echo "Updating LambdaDev function"
             cd LambdaDev
             npm install
@@ -16,7 +19,7 @@ phases:
             aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip
             aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip
             cd ..
-          elif [[ "$line" == "lambdaSF/"* ]]; then
+          elif [[ "$file" == "lambdaSF/"* ]]; then
             echo "Updating lambdaSF function"
             cd lambdaSF
             npm install
