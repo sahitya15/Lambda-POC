@@ -4,12 +4,10 @@ phases:
   install:
     runtime-versions:
       nodejs: 14
-  pre_build:
-    commands:
-      - git fetch --all
   build:
     commands:
-      - |
+      - git fetch --all
+      - >
         for file in $(git diff --name-only $CODEBUILD_SOURCE_VERSION $(git merge-base $CODEBUILD_SOURCE_VERSION origin/main)); do
           if [[ "$file" == "lambdaDev/"* ]]; then
             echo "Updating LambdaDev function"
