@@ -6,19 +6,31 @@ phases:
       nodejs: 14
   build:
     commands:
+      - cd LambdaDev
+      - npm install
+      - zip -r LambdaDev.zip *
+      - aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip
+      - aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip
+      - cd ../lambdaSF
+      - npm install
+      - zip -r lambdaSF.zip *
+      - aws s3 cp lambdaSF.zip s3://multi-lambda/lambdaSF.zip
+      - aws lambda update-function-code --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip
       - |
-        if [[ "$AWS_CODEBUILD_WEBHOOK_HEAD_REF" == "refs/heads/main" && $(git diff-tree --no-commit-id --name-only -r HEAD) =~ "LambdaDev/" ]]; then
-          cd LambdaDev
-          npm install
-          zip -r LambdaDev.zip *
-          aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip
-          aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip
-        elif [[ "$AWS_CODEBUILD_WEBHOOK_HEAD_REF" == "refs/heads/main" && $(git diff-tree --no-commit-id --name-only -r HEAD) =~ "lambdaSF/" ]]; then
-          cd lambdaSF
-          npm install
-          zip -r lambdaSF.zip *
-          aws s3 cp lambdaSF.zip s3://multi-lambda/lambdaSF.zip
-          aws lambda update-function-code --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip
-        else
-          echo "No Lambda function to update"
+        if [ "$CODEBUILD_WEBHOOK_EVENT" == "PUSH" ]; then
+          changed_files=$(git diff --name-only HEAD HEAD~1)
+          lambda_folder=$(echo $changed_files | grep -E '^LambdaDev/|^lambdaSF/' | cut -d'/' -f1)
+          if [ "$lambda_folder" == "LambdaDev" ]; then
+            cd LambdaDev
+            npm install
+            zip -r LambdaDev.zip *
+            aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip
+            aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip
+          elif [ "$lambda_folder" == "lambdaSF" ]; then
+            cd lambdaSF
+            npm install
+            zip -r lambdaSF.zip *
+            aws s3 cp lambdaSF.zip s3://multi-lambda/lambdaSF.zip
+            aws lambda update-function-code --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip
+          fi
         fi
