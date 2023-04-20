@@ -6,21 +6,33 @@ phases:
       nodejs: 14
   build:
     commands:
-      - echo "functions=$functions"
-      - echo "directories=$directories"
-      - set -x
-      - declare -a functions=("LambdaDev" "lambdaSF")
-        declare -a directories=("LambdaDev" "lambdaSF")
-      - set +x
-      - |
-        for ((i=0; i<${#functions[@]}; i++)); do
-          function_name="${functions[$i]}"
-          directory_name="${directories[$i]}"
-          echo "Updating $function_name with code from $directory_name"
-          cd "$directory_name"
+      - git clone https://github.com/sahitya15/Lambda-POC.git
+      - cd Lambda-POC
+      - ls -al
+      # Update  function 1
+      - LAMBDA_FUNCTION_NAME=${LAMBDA_FUNCTION_NAME_1}
+        LAMBDA_DIRECTORY=$LAMBDA_FUNCTION_NAME
+        S3_BUCKET_NAME=${BUCKET_NAME}
+        if git diff --name-only HEAD^ HEAD | grep -q "^$LAMBDA_DIRECTORY/"; then
+          echo "Detected changes in $LAMBDA_DIRECTORY directory, updating $LAMBDA_FUNCTION_NAME function..."
+          cd $LAMBDA_DIRECTORY
           npm install
-          zip -r "$function_name.zip" .
-          aws s3 cp "$function_name.zip" "s3://dev-cicd-sis/$function_name.zip"
-          aws lambda update-function-code --function-name "$function_name" --s3-bucket multi-lambda --s3-key "$function_name.zip"
+          zip -r $LAMBDA_FUNCTION_NAME.zip *
+          aws s3 cp $LAMBDA_FUNCTION_NAME.zip s3://$S3_BUCKET_NAME/$LAMBDA_FUNCTION_NAME.zip
+          aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --s3-bucket $S3_BUCKET_NAME --s3-key $LAMBDA_FUNCTION_NAME.zip
           cd ..
-        done
+        fi
+      # Update  function 2
+      - LAMBDA_FUNCTION_NAME=${LAMBDA_FUNCTION_NAME_2}
+        LAMBDA_DIRECTORY=$LAMBDA_FUNCTION_NAME
+        S3_BUCKET_NAME=${BUCKET_NAME}
+        if git diff --name-only HEAD^ HEAD | grep -q "^$LAMBDA_DIRECTORY/"; then
+          echo "Detected changes in $LAMBDA_DIRECTORY directory, updating $LAMBDA_FUNCTION_NAME function..."
+          cd $LAMBDA_DIRECTORY
+          npm install
+          zip -r $LAMBDA_FUNCTION_NAME.zip *
+          aws s3 cp $LAMBDA_FUNCTION_NAME.zip s3://$S3_BUCKET_NAME/$LAMBDA_FUNCTION_NAME.zip
+          aws lambda update-function-code --function-name $LAMBDA_FUNCTION_NAME --s3-bucket $S3_BUCKET_NAME --s3-key $LAMBDA_FUNCTION_NAME.zip
+          cd ..
+         fi
+       done
