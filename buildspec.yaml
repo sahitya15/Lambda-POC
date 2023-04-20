@@ -6,37 +6,29 @@ phases:
       nodejs: 14
   build:
     commands:
-      - git clone https://github.com/sahitya15/Lambda-POC.git
-      - cd Lambda-POC
+      - git clone https://github.com/aludeveloper/alu-sis-lms-integration-middleware.git
+      - cd alu-sis-lms-lms-integration-middleware
       - ls -al
       - |
-        # Check if there are changes in the LambdaDev directory
-        if git diff --name-only HEAD^ HEAD | grep -q "^LambdaDev/"; then
-          echo "Detected changes in LambdaDev directory, updating LambdaDev function..."
-          # Navigate to the LambdaDev directory
-          cd LambdaDev
-          # Install dependencies and package code
-          npm install
-          zip -r LambdaDev.zip *
-          # Upload code package to S3
-          aws s3 cp LambdaDev.zip s3://multi-lambda/LambdaDev.zip
-          # Update Lambda function with new code package
-          aws lambda update-function-code --function-name LambdaDev --s3-bucket multi-lambda --s3-key LambdaDev.zip
-          # Navigate back to the root directory
-          cd ..
-        fi
-        # Check if there are changes in the lambdaSF directory
-        if git diff --name-only HEAD^ HEAD | grep -q "^lambdaSF/"; then
-          echo "Detected changes in lambdaSF directory, updating lambdaSF function..."
-          # Navigate to the lambdaSF directory
-          cd lambdaSF
-          # Install dependencies and package code
-          npm install
-          zip -r lambdaSF.zip *
-          # Upload code package to S3
-          aws s3 cp lambdaSF.zip s3://multi-lambda/lambdaSF.zip
-          # Update Lambda function with new code package
-          aws lambda update-function-code --function-name lambdaSF --s3-bucket multi-lambda --s3-key lambdaSF.zip
-          # Navigate back to the root directory
-          cd ..
-        fi
+        # Define variables
+        lambda_names=("LAMBDA_NAME_1" "LAMBDA_NAME_2")
+        s3_bucket="S3_BUCKET_NAME"
+
+        # Loop through each Lambda function and directory
+        for lambda_name in "${lambda_names[@]}"; do
+          # Check if there are changes in the directory
+          if git diff --name-only HEAD^ HEAD | grep -q "^${lambda_name}/"; then
+            echo "Detected changes in ${lambda_name} directory, updating ${lambda_name} function..."
+            # Navigate to the directory
+            cd ${lambda_name}
+            # Install dependencies and package code
+            npm install
+            zip -r ${lambda_name}.zip *
+            # Upload code package to S3
+            aws s3 cp ${lambda_name}.zip s3://${s3_bucket}/${lambda_name}.zip
+            # Update Lambda function with new code package
+            aws lambda update-function-code --function-name ${lambda_name} --s3-bucket ${s3_bucket} --s3-key ${lambda_name}.zip
+            # Navigate back to the root directory
+            cd ..
+          fi
+        done
