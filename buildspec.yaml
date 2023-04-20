@@ -6,34 +6,21 @@ phases:
       nodejs: 14
   build:
     commands:
-      - git clone https://github.com/sahitya15/Lambda-POC.git
-      - cd Lambda-POC
-      - ls -al
-      
-      # Define an array of Lambda function names and directories
-      - |
-        declare -a functions=("LambdaDev" "lambdaSF")
+      - echo "functions=$functions"
+      - echo "directories=$directories"
+      - set -x
+      - declare -a functions=("LambdaDev" "lambdaSF")
         declare -a directories=("LambdaDev" "lambdaSF")
-      
-      # Loop through each Lambda function and directory
+      - set +x
       - |
-        for (( i=0; i<${#functions[@]}; i++ )); do
-          function_name=${functions[$i]}
-          directory_name=${directories[$i]}
-          
-          # Check if there are changes in the directory
-          if git diff --name-only HEAD^ HEAD | grep -q "^$directory_name/"; then
-            echo "Detected changes in $directory_name directory, updating $function_name function..."
-            # Navigate to the directory
-            cd $directory_name
-            # Install dependencies and package code
-            npm install
-            zip -r $function_name.zip *
-            # Upload code package to S3
-            aws s3 cp $function_name.zip s3://dev-cicd-sis/$function_name.zip
-            # Update Lambda function with new code package
-            aws lambda update-function-code --function-name $function_name --s3-bucket multi-lambda --s3-key $function_name.zip
-            # Navigate back to the root directory
-            cd ..
-          fi
+        for ((i=0; i<${#functions[@]}; i++)); do
+          function_name="${functions[$i]}"
+          directory_name="${directories[$i]}"
+          echo "Updating $function_name with code from $directory_name"
+          cd "$directory_name"
+          npm install
+          zip -r "$function_name.zip" .
+          aws s3 cp "$function_name.zip" "s3://dev-cicd-sis/$function_name.zip"
+          aws lambda update-function-code --function-name "$function_name" --s3-bucket multi-lambda --s3-key "$function_name.zip"
+          cd ..
         done
