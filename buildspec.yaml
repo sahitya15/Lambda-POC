@@ -11,11 +11,11 @@ phases:
       - ls -al
       - |
         # Define variables
-        lambda_names="LAMBDA_NAME_1 LAMBDA_NAME_2"
+        lambda_name="LAMBDA_NAME_1 LAMBDA_NAME_2"
         s3_bucket="S3_BUCKET_NAME"
 
         # Loop through each Lambda function and directory
-        for lambda_name in $lambda_names; do
+        for lambda_name in $lambda_name; do
           # Check if there are changes in the directory
           if git diff --name-only HEAD^ HEAD | grep -q "^${lambda_name}/"; then
             echo "Detected changes in ${lambda_name} directory, updating ${lambda_name} function..."
