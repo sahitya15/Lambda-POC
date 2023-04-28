@@ -11,7 +11,7 @@ phases:
       - ls -al
       - |
         LAMBDA_FUNCTION_NAME=${LAMBDA_FUNCTION_NAME_1};
-        LAMBDA_DIRECTORY=${LAMBDA_DIRECTORY_NAME_1};
+        LAMBDA_DIRECTORY=${LAMBDA_FUNCTION_NAME_1};
         S3_BUCKET_NAME=${BUCKET_NAME};
         if git diff --name-only HEAD^ HEAD | grep -q "^$LAMBDA_DIRECTORY/"; then
           echo "Detected changes in $LAMBDA_DIRECTORY directory, updating $LAMBDA_FUNCTION_NAME function..."
@@ -24,7 +24,7 @@ phases:
         fi
       - |
         LAMBDA_FUNCTION_NAME=${LAMBDA_FUNCTION_NAME_2};
-        LAMBDA_DIRECTORY=${LAMBDA_DIRECTORY_NAME_2};
+        LAMBDA_DIRECTORY=${LAMBDA_FUNCTION_NAME_2};
         S3_BUCKET_NAME=${BUCKET_NAME};
         if git diff --name-only HEAD^ HEAD | grep -q "^$LAMBDA_DIRECTORY/"; then
           echo "Detected changes in $LAMBDA_DIRECTORY directory, updating $LAMBDA_FUNCTION_NAME function..."
